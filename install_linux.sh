@@ -1,7 +1,6 @@
-# CONSTANTS - FILENAMES
+#!/bin/bash
+
 EXECUTEONCE=".executeonce"
-
-
 [[ -f "$EXECUTEONCE" ]] && {
   python3 -m pip install virtualenv;
   python3 -m virtualenv venv;
@@ -10,9 +9,9 @@ EXECUTEONCE=".executeonce"
     python3 -m pip install -r requirements.txt
   else
     echo "Cannot find requirements.txt"
-    return 1
+    exit 1
   fi
-  sudo chmod u+x ./main.py || return 1;
+  sudo chmod u+x ./main.py || { echo "Cannot get permissions to execute" ; exit 1; }
   rm $EXECUTEONCE;  # remove to skip this on next execute
   echo "Setup complete.";
 } || {

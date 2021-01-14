@@ -13,6 +13,8 @@ ENCODINGS = ["utf8", "cp1252"]
 
 DATA = []
 
+CHUNK_SIZE = 1024
+
 
 def init_dirs(dirs: list):
     for d in dirs:
@@ -36,12 +38,36 @@ def read_csv_to_data(fn):
 
 
 def save_all_urls():
-    for item in DATA:
+    failed_urls = []
+    for item in DATA[1:]:
+        url = item['url']
+
         # Get save location
-        local_filename = item['url'].split('/')[-1]
+        local_filename = url.split('/')[-1]
         destination = OUTPUT_DIR.joinpath(local_filename)
 
-        # TODO Make request
+        # Check if file already exists
+        if not destination.exists():
+            print(f"Requesting {url}")
+            try:
+                r = requests.get(url, stream=True)
+                r.raise_for_status()
+                print(f"Response Code: {r.status_code}")
+
+                if r.status_code == 200:
+                    with open(destination, 'wb') as f:
+                        print(f"Writing {local_filename} by chunk: {CHUNK_SIZE}")
+                        for chunk in r.iter_content(CHUNK_SIZE):
+                            f.write(chunk)
+                    print(f"Saved {url} to\n\t{destination}")
+
+            except requests.exceptions.MissingSchema as e:
+                print(f"ERROR: {e}\nFailed on {url}")
+                failed_urls.append(url)
+                continue
+
+    print("Failed on these:")
+    print(failed_urls)
 
 
 init_dirs([CSV_DIR, OUTPUT_DIR])
@@ -49,3 +75,5 @@ csv_files = get_all_csv_paths()
 _ = [read_csv_to_data(f) for f in csv_files]
 
 save_all_urls()
+
+print(f"Saved files to: {OUTPUT_DIR}")

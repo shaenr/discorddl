@@ -1,4 +1,4 @@
-EXECUTEONCE=".executeonce"
+EXECUTEONCE="executeonce.txt"
 if [ -f "$EXECUTEONCE" ]; then
   echo "Attempting to install virtualenv"
   python3 -m pip install virtualenv && echo "virtualenv installed"

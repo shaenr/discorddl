@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+import os
 import csv
 from pathlib import Path
 import codecs
 import requests
+import subprocess
 
 CWD = Path.cwd()
 CSV_DIR = CWD.joinpath('csv')
@@ -14,6 +16,15 @@ ENCODINGS = ["utf8", "cp1252"]
 DATA = []
 
 CHUNK_SIZE = 1024
+
+
+def install(install_check: Path):
+    print(install_check)
+    if not install_check.exists():
+        return
+    else:
+        if os.name == 'nt':
+            subprocess.run(['ls'])
 
 
 def init_dirs(dirs: list):
@@ -39,8 +50,10 @@ def read_csv_to_data(fn):
 
 def save_all_urls():
     failed_urls = []
-    for item in DATA[1:]:
+    for item in DATA:
         url = item['url']
+        if url == 'Attachments':
+            continue
 
         # Get save location
         local_filename = url.split('/')[-1]
@@ -66,11 +79,14 @@ def save_all_urls():
                 failed_urls.append(url)
                 continue
 
-    print("Failed on these:")
-    print(failed_urls)
+    if failed_urls:
+        print("Failed on these:")
+        print(failed_urls)
 
 
 init_dirs([CSV_DIR, OUTPUT_DIR])
+install(CWD.joinpath('executeonce.txt'))
+
 csv_files = get_all_csv_paths()
 _ = [read_csv_to_data(f) for f in csv_files]
 

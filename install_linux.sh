@@ -18,7 +18,9 @@ if [ -f "$EXECUTEONCE" ]; then
   sudo chmod u+x ./main.py || return 1
   rm $EXECUTEONCE  # remove to skip this on next execute
   echo "Setup complete."
+
 else
+
   # if already setup just execute
   ./main.py || {
     touch "$EXECUTEONCE";  # on error, reset for next execute;

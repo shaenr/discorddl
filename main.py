@@ -14,6 +14,11 @@ ENCODINGS = ["utf8", "cp1252"]
 DATA = []
 
 
+def init_dirs(dirs: list):
+    for d in dirs:
+        d.mkdir(exist_ok=True)
+
+
 def get_all_csv_paths():
     return [f for f in CSV_DIR.iterdir() if f.suffix == '.csv']
 
@@ -39,6 +44,7 @@ def save_all_urls():
         # TODO Make request
 
 
+init_dirs([CSV_DIR, OUTPUT_DIR])
 csv_files = get_all_csv_paths()
 _ = [read_csv_to_data(f) for f in csv_files]
 

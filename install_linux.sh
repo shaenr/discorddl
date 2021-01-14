@@ -15,14 +15,14 @@ if [ -f "$EXECUTEONCE" ]; then
     return 1
   fi
   echo "Attempting to execute 'sudo chmod u+x ./main.py' -- need password..."
-  sudo chmod u+x ./main.py || return 1
+  sudo chmod u+x ./script.py || return 1
   rm $EXECUTEONCE  # remove to skip this on next execute
   echo "Setup complete."
 
 else
 
   # if already setup just execute
-  ./main.py || {
+  ./script.py || {
     touch "$EXECUTEONCE";  # on error, reset for next execute;
     echo "$EXECUTEONCE" reinitialized;
     exit 1

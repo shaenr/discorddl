@@ -1,30 +1,24 @@
 #!/usr/bin/env python3
 
-import os
 import csv
-from pathlib import Path
 import codecs
 import requests
+from pathlib import Path
 import subprocess
+import sys
+import os
+
 
 CWD = Path.cwd()
 CSV_DIR = CWD.joinpath('csv')
 OUTPUT_DIR = CWD.joinpath('output')
+EXECONCE = CWD.joinpath('executeonce.txt')
 
 ENCODINGS = ["utf8", "cp1252"]
 
 DATA = []
 
 CHUNK_SIZE = 1024
-
-
-def install(install_check: Path):
-    print(install_check)
-    if not install_check.exists():
-        return
-    else:
-        if os.name == 'nt':
-            subprocess.run(['ls'])
 
 
 def init_dirs(dirs: list):
@@ -46,6 +40,29 @@ def read_csv_to_data(fn):
                     'url': row[3]
                 }
                 DATA.append(item)
+
+
+def install(install_check: Path):
+    if not install_check.exists():
+        return
+    else:
+        if os.name == 'nt':
+            try:
+                subprocess.run([sys.executable, '-m', 'pip', 'install', 'virtualenv'], check=True)
+                subprocess.run([r'.\venv\Scripts\activate.bat'], check=True)
+                subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'], check=True)
+            except FileNotFoundError as e:
+                print(e)
+        else:
+            subprocess.run(['bash', 'install_linux.sh'], check=True)
+
+        install_check.unlink()
+
+
+def reinitialize_executeonce(install_check: Path):
+    if not install_check.exists():
+        with install_check.open('w') as fo:
+            fo.write()
 
 
 def save_all_urls():
@@ -85,7 +102,7 @@ def save_all_urls():
 
 
 init_dirs([CSV_DIR, OUTPUT_DIR])
-install(CWD.joinpath('executeonce.txt'))
+install(EXECONCE)
 
 csv_files = get_all_csv_paths()
 _ = [read_csv_to_data(f) for f in csv_files]
